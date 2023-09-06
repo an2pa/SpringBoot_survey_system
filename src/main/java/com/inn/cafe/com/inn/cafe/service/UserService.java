@@ -14,5 +14,7 @@ public interface UserService {
     ResponseEntity<User> getUser(int id);
     ResponseEntity<String> deleteUser(int id);
     ResponseEntity<String> putUser(int id, Map<String, String> requestMap);
+    ResponseEntity<String> changePassword(Map<String, Object> requestMap);
+    ResponseEntity<String> forgotPassword(Map<String, Object> requestMap);
 
 }

@@ -48,7 +48,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/user/login", "/user/signup", "/user/forgorPassword")
+                .antMatchers("/user/login", "/user/signup", "/user/forgotPassword", "/survey/createSurvey",
+        "/survey/surveys", "/survey/surveysDTO", "/survey/addQuestionById", "/survey/createQuestion")
+
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -57,9 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    
-        
+
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-            }
+    }
 
 }

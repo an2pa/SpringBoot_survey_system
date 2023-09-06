@@ -77,5 +77,25 @@ public class UserRestImpl implements UserRest {
         }
         return CafeUtils.getResponseEntity("smth went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> changePassword(Map<String, Object> requestMap) {
+        try {
+            return userService.changePassword(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity("Smth went wrong!", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, Object> requestMap) {
+     try {
+            return userService.forgotPassword(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return CafeUtils.getResponseEntity("Smth went wrong!", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     
 }
