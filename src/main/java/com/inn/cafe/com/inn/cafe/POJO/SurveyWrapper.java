@@ -9,7 +9,6 @@ public class SurveyWrapper {
     private String name;
     private String description;
     private List<Question> questions;
-    private List<Answer> answers;
 
     // Constructors, getters, and setters
 

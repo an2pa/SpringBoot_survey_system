@@ -108,15 +108,13 @@ public class SurveyRestImpl implements SurveyRest {
     @Override
     public ResponseEntity<SurveyWrapper> getSurvey(int id) {
        SurveyWrapper sW = new SurveyWrapper();
-       SurveyWrapper sw2 = new SurveyWrapper();
        Survey survey = surveyDao.findById(id).orElse(null);
        List<Question> questions = getQuestionsForSurvey(id);
-       List<Answer> answers = getAnswersForQuestions(questions);
        sW.setName(survey.getName());
        sW.setDescription(survey.getDescription());
        sW.setQuestions(questions);
-       sW.setAnswers(answers);
-       System.out.println("survey"+ sW);
+       //System.out.println("survey"+ sW);
+       
        return new ResponseEntity<SurveyWrapper>(sW, HttpStatus.OK);
     }
 
