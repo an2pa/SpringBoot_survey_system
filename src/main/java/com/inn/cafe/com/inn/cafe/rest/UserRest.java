@@ -21,6 +21,9 @@ public interface UserRest {
     @PostMapping(path="/signup")
     public ResponseEntity<String> signUp(@RequestBody(required=true) Map<String, String> requestMap);
 
+    @PostMapping(path="/login")
+    public ResponseEntity<String> logIn(@RequestBody(required=true) Map<String, String> requestMap);
+
     @GetMapping(path="/users")
     public ResponseEntity<List<User>> getUsers();
 
@@ -33,4 +36,9 @@ public interface UserRest {
     @PutMapping(path="/userById/{id}")
     public ResponseEntity<String> putUser(@PathVariable int id, @RequestBody(required=true) Map<String, String> requestMap );
 
+    @PutMapping(path="/changePassword")
+    public ResponseEntity<String> changePassword(@RequestBody(required=true) Map<String, Object> requestMap );
+
+     @PutMapping(path="/forgotPassword")
+    public ResponseEntity<String> forgotPassword(@RequestBody(required=true) Map<String, Object> requestMap );
 }
