@@ -182,8 +182,6 @@ private EntityManager entityManager;
         List<Question> quest=getQuestionsForSurvey(id);
         sDto.setQuestions(quest);
         List<Answer> ans=getAnswersForQuestions(quest);
-        sDto.setAnswers(ans);
-
         System.out.println("SUrveey");
         System.out.println(sDto);
         return sDto;

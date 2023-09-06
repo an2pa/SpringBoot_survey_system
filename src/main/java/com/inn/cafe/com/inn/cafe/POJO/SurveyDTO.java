@@ -14,8 +14,7 @@ public class SurveyDTO {
     private String description;
     @JsonProperty("questions")
     private List<Question> questions;
-    @JsonProperty("answers")
-    private List<Answer> answers;
+
 
     public int getId(){
         return this.id;
@@ -31,9 +30,7 @@ public class SurveyDTO {
     public List<Question> getQuestions(){
         return this.questions;
     }
-    public List<Answer> getAnswers(){
-        return this.answers;
-    }
+
     
     public void setId(int id){
          this.id=id;
@@ -49,9 +46,7 @@ public class SurveyDTO {
     public void setQuestions(List<Question> questions){
          this.questions=questions;
     }
-    public void setAnswers(List<Answer> answers){
-         this.answers=answers;
-    }
+    
 
     @Override
     public String toString() {
@@ -59,7 +54,6 @@ public class SurveyDTO {
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", questions=" + questions +
-                ", answers=" + answers +
                 '}';
     }
 
