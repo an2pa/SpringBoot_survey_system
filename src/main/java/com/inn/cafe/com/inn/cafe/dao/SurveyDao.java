@@ -7,5 +7,4 @@ import com.inn.cafe.com.inn.cafe.POJO.Survey;
 import com.inn.cafe.com.inn.cafe.POJO.User;
 
 public interface SurveyDao extends JpaRepository<Survey, Integer> {
-    Survey findByName(@Param("name") String name);
 }

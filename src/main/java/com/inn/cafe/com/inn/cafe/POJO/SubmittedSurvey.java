@@ -16,60 +16,60 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.NamedQuery;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "question")
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "submited_survey")
 
-public class Question implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class SubmittedSurvey implements Serializable {
+    private static final long serialVersionUid = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "question")
-    private String question;
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "description")
+    private String description;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "question_answer", joinColumns = @JoinColumn(name = "question_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "answer_id", referencedColumnName = "id"))
-    
-    private List<Answer> answers;
-
-    
-    @ManyToMany(mappedBy = "questions", fetch = FetchType.LAZY)
+    @JoinTable(name = "submittedSurvey_question", joinColumns = @JoinColumn(name = "submittedSurvey_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "question_id", referencedColumnName = "id"))
     @JsonBackReference
-    private List<Survey> surveys;
+    private List<Question> questions;
 
-    @ManyToMany(mappedBy = "questions", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<SubmittedSurvey> submittedSurveys;
-
-    
 
     @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof Question))
+        if (!(o instanceof SubmittedSurvey))
             return false;
-        Question otherQuestion = (Question) o;
-        return Objects.equals(id, otherQuestion.id);
+        SubmittedSurvey survey = (SubmittedSurvey) o;
+        return Objects.equals(id, survey.id);
     }
 
     @Override
@@ -79,9 +79,11 @@ public class Question implements Serializable {
 
     @Override
     public String toString() {
-        return "Question{" +
+        return "Survey{" +
                 "id=" + id +
-                ", question='" + question + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", questions='" + questions + '\'' +
                 '}';
     }
 

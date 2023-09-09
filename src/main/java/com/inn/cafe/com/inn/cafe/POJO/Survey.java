@@ -33,7 +33,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NamedQuery(name = "Survey.findByName", query = "select s from Survey s where s.name=:name")
 @Data
 @Entity
 @DynamicInsert

@@ -42,8 +42,7 @@ public class Answer implements Serializable {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "answer")
-    
+    @Column(name = "answer")  
     private String answer;
 
     @ManyToMany(mappedBy = "answers", fetch = FetchType.LAZY)
