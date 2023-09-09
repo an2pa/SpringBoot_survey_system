@@ -1,7 +1,9 @@
 package com.inn.cafe.com.inn.cafe.restImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,12 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.inn.cafe.com.inn.cafe.POJO.Answer;
 import com.inn.cafe.com.inn.cafe.POJO.Question;
+import com.inn.cafe.com.inn.cafe.POJO.QuestionAnswer;
+import com.inn.cafe.com.inn.cafe.POJO.SubmittedSurvey;
+import com.inn.cafe.com.inn.cafe.POJO.SubmittedSurveyReq;
 import com.inn.cafe.com.inn.cafe.POJO.Survey;
 import com.inn.cafe.com.inn.cafe.POJO.SurveyDTO;
 import com.inn.cafe.com.inn.cafe.POJO.SurveyWrapper;
 import com.inn.cafe.com.inn.cafe.POJO.User;
 import com.inn.cafe.com.inn.cafe.dao.AnswerDao;
 import com.inn.cafe.com.inn.cafe.dao.QuestionDao;
+import com.inn.cafe.com.inn.cafe.dao.SubmittedSurveyDao;
 import com.inn.cafe.com.inn.cafe.dao.SurveyDao;
 import com.inn.cafe.com.inn.cafe.rest.SurveyRest;
 import com.inn.cafe.com.inn.cafe.rest.UserRest;
@@ -38,6 +44,9 @@ public class SurveyRestImpl implements SurveyRest {
     @Autowired
     SurveyDao surveyDao;
 
+    @Autowired
+    SubmittedSurveyDao submittedSurveyDao;
+
     @Override
     public ResponseEntity<String> createSurvey(Survey survey) {
         try {
@@ -49,14 +58,12 @@ public class SurveyRestImpl implements SurveyRest {
         return CafeUtils.getResponseEntity("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    
-
     @Override
     public ResponseEntity<Question> addQuestion(int questionId, int surveyId) {
         try {
-            
+
             System.out.println(" nesooooooo");
-            return surveyService.addQuestion(questionId,surveyId);
+            return surveyService.addQuestion(questionId, surveyId);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -65,32 +72,24 @@ public class SurveyRestImpl implements SurveyRest {
     @Override
     public ResponseEntity<String> deleteSurvey(int id) {
         try {
-           return surveyService.deleteSurvey(id); 
+            return surveyService.deleteSurvey(id);
         } catch (Exception e) {
             return CafeUtils.getResponseEntity("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
-            
+
         }
     }
-
-
 
     @Override
     public ResponseEntity<List<Survey>> getSurveys() {
 
-
-        
         return surveyService.getSurveys();
     }
-
-
 
     @Override
     public ResponseEntity<List<SurveyDTO>> getSurveysDTO() {
         List<SurveyDTO> surveyDTO = surveyService.getSurveysDTO();
         return new ResponseEntity<>(surveyDTO, HttpStatus.OK);
     }
-
-
 
     @Override
     public ResponseEntity<String> createQuestion(Question question) {
@@ -103,19 +102,17 @@ public class SurveyRestImpl implements SurveyRest {
         return CafeUtils.getResponseEntity("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
-
     @Override
     public ResponseEntity<SurveyWrapper> getSurvey(int id) {
-       SurveyWrapper sW = new SurveyWrapper();
-       Survey survey = surveyDao.findById(id).orElse(null);
-       List<Question> questions = getQuestionsForSurvey(id);
-       sW.setName(survey.getName());
-       sW.setDescription(survey.getDescription());
-       sW.setQuestions(questions);
-       //System.out.println("survey"+ sW);
-       
-       return new ResponseEntity<SurveyWrapper>(sW, HttpStatus.OK);
+        SurveyWrapper sW = new SurveyWrapper();
+        Survey survey = surveyDao.findById(id).orElse(null);
+        List<Question> questions = getQuestionsForSurvey(id);
+        sW.setName(survey.getName());
+        sW.setDescription(survey.getDescription());
+        sW.setQuestions(questions);
+        // System.out.println("survey"+ sW);
+
+        return new ResponseEntity<SurveyWrapper>(sW, HttpStatus.OK);
     }
 
     public List<Question> getQuestionsForSurvey(int surveyId) {
@@ -142,7 +139,53 @@ public class SurveyRestImpl implements SurveyRest {
         return answers;
     }
 
+    @Override
+    public ResponseEntity<String> submitSurvey(SubmittedSurveyReq survey) {
+        SubmittedSurvey submittedSurvey = new SubmittedSurvey();
+        Integer surveyId = survey.getSurveyId();
+        Survey surveyOptional = surveyDao.findById(surveyId).orElse(null);
 
+        submittedSurvey.setName(surveyOptional.getName());
+        submittedSurvey.setDescription(surveyOptional.getDescription());
 
-    
+        List<Question> questions = new ArrayList<>();
+
+        for (QuestionAnswer qa : survey.getQuestionAnswer()) {
+            Optional<Question> questionOptional = questionDao.findById(qa.getQuestionId());
+
+            if (questionOptional.isPresent()) {
+                Question question = questionOptional.get();
+                List<Answer> answers = new ArrayList<>();
+
+                Integer answerId = qa.getAnswerId();
+                Optional<Answer> answerOptional = answerDao.findById(answerId);
+
+                if (answerOptional.isPresent()) {
+                    Answer answer = answerOptional.get();
+                    answers.add(answer);
+                }
+
+                question.setAnswers(answers);
+                questions.add(question);
+            }
+        }
+
+        submittedSurvey.setQuestions(questions);
+        submittedSurveyDao.save(submittedSurvey);
+
+        return CafeUtils.getResponseEntity("success", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<SurveyWrapper> getSubmittedSurvey(int id) {
+        SurveyWrapper sW = new SurveyWrapper();
+        SubmittedSurvey survey = submittedSurveyDao.findById(id).orElse(null);
+        sW.setName(survey.getName());
+        sW.setDescription(survey.getDescription());
+        sW.setQuestions(survey.getQuestions());
+        // System.out.println("survey"+ sW);
+
+        return new ResponseEntity<SurveyWrapper>(sW, HttpStatus.OK);
+    }
+
 }
