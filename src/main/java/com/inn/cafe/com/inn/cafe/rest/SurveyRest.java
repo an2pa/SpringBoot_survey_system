@@ -52,10 +52,4 @@ public interface SurveyRest {
     @DeleteMapping(path="/surveyById/{id}")
     public ResponseEntity<String> deleteSurvey(@PathVariable int id);
 
-
-
-    /*
-    @PutMapping(path="/userById/{id}")
-    public ResponseEntity<String> putUser(@PathVariable int id, @RequestBody(required=true) Map<String, String> requestMap );
-    */
 }
