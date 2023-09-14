@@ -6,16 +6,20 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 import com.inn.cafe.com.inn.cafe.POJO.Question;
+import com.inn.cafe.com.inn.cafe.POJO.SubmittedSurveyReq;
 import com.inn.cafe.com.inn.cafe.POJO.Survey;
 import com.inn.cafe.com.inn.cafe.POJO.SurveyDTO;
+import com.inn.cafe.com.inn.cafe.POJO.SurveyWrapper;
 import com.inn.cafe.com.inn.cafe.POJO.User;
 
 public interface SurveyService {
-    Survey createSurvey(Survey survey);
-    Question createQuestion(Question question);
+    ResponseEntity<String> createSurvey(Survey survey);
+    ResponseEntity<String> createQuestion(Question question);
     ResponseEntity<List<Survey>> getSurveys();
     List<SurveyDTO> getSurveysDTO();
-    SurveyDTO getSurvey(int id);
+    SurveyWrapper getSurvey(int id);
     ResponseEntity<Question> addQuestion(int questionId, int surveyId);
     ResponseEntity<String> deleteSurvey(int id);
+    ResponseEntity<String> submitSurvey(SubmittedSurveyReq survey);
+    SurveyWrapper getSubmittedSurvey(int id);
 }
