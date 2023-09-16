@@ -61,14 +61,13 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public ResponseEntity<String> createSurvey(Survey survey) {
         try {
-        if(jwtFilter.isAdmin()){
-            surveyDao.save(survey); 
-            return CafeUtils.getResponseEntity("Success", HttpStatus.OK);
-        }
-        else{
-            return CafeUtils.getResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
-        }
-           
+            if (jwtFilter.isAdmin()) {
+                surveyDao.save(survey);
+                return CafeUtils.getResponseEntity("Success", HttpStatus.OK);
+            } else {
+                return CafeUtils.getResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -151,13 +150,14 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public List<SurveyDTO> getSurveysDTO() {
+    public ResponseEntity<List<SurveyDTO>> getSurveysDTO() {
         try {
             List<Survey> surveys = surveyDao.findAll();
-            return surveys.stream().map(this::convertToDTO).collect(Collectors.toList());
+            List<SurveyDTO> surveyDTOs = surveys.stream().map(this::convertToDTO).collect(Collectors.toList());
+            return new ResponseEntity<List<SurveyDTO>>(surveyDTOs, null, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return Collections.emptyList();
+            return new ResponseEntity<List<SurveyDTO>>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -174,74 +174,99 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public ResponseEntity<String> createQuestion(Question question) {
         try {
-            if(jwtFilter.isAdmin()){
-            questionDao.save(question);
-            return CafeUtils.getResponseEntity("Successfully added a question", HttpStatus.OK);      
-                }
-                else{
-                    return CafeUtils.getResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
-                }
+            if (jwtFilter.isAdmin()) {
+                questionDao.save(question);
+                return CafeUtils.getResponseEntity("Successfully added a question", HttpStatus.OK);
+            } else {
+                return CafeUtils.getResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-      return CafeUtils.getResponseEntity("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        return CafeUtils.getResponseEntity("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
-    public SurveyWrapper getSurvey(int id) {
-        SurveyWrapper sW = new SurveyWrapper();
-        Survey survey = surveyDao.findById(id).orElse(null);
-        List<Question> questions = getQuestionsForSurvey(id);
-        sW.setName(survey.getName());
-        sW.setDescription(survey.getDescription());
-        sW.setQuestions(questions);
-        return sW;
+    public ResponseEntity<SurveyWrapper> getSurvey(int id) {
+        try {
+            SurveyWrapper sW = new SurveyWrapper();
+            Survey survey = surveyDao.findById(id).orElse(null);
+            List<Question> questions = getQuestionsForSurvey(id);
+            sW.setName(survey.getName());
+            sW.setDescription(survey.getDescription());
+            sW.setQuestions(questions);
+            return new ResponseEntity<SurveyWrapper>(sW, null, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<SurveyWrapper>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public ResponseEntity<String> submitSurvey(SubmittedSurveyReq survey) {
-        SubmittedSurvey submittedSurvey = new SubmittedSurvey();
-        Integer surveyId = survey.getSurveyId();
-        Survey surveyOptional = surveyDao.findById(surveyId).orElse(null);
+        try {
+            SubmittedSurvey submittedSurvey = new SubmittedSurvey();
+            Integer surveyId = survey.getSurveyId();
+            Survey surveyOptional = surveyDao.findById(surveyId).orElse(null);
 
-        submittedSurvey.setName(surveyOptional.getName());
-        submittedSurvey.setDescription(surveyOptional.getDescription());
+            submittedSurvey.setName(surveyOptional.getName());
+            submittedSurvey.setDescription(surveyOptional.getDescription());
 
-        List<Question> questions = new ArrayList<>();
+            List<Question> questions = new ArrayList<>();
 
-        for (QuestionAnswer qa : survey.getQuestionAnswer()) {
-            Optional<Question> questionOptional = questionDao.findById(qa.getQuestionId());
+            for (QuestionAnswer qa : survey.getQuestionAnswer()) {
+                Optional<Question> questionOptional = questionDao.findById(qa.getQuestionId());
 
-            if (questionOptional.isPresent()) {
-                Question question = questionOptional.get();
-                List<Answer> answers = new ArrayList<>();
+                if (questionOptional.isPresent()) {
+                    Question question = questionOptional.get();
+                    List<Answer> answers = new ArrayList<>();
 
-                Integer answerId = qa.getAnswerId();
-                Optional<Answer> answerOptional = answerDao.findById(answerId);
+                    Integer answerId = qa.getAnswerId();
+                    Optional<Answer> answerOptional = answerDao.findById(answerId);
 
-                if (answerOptional.isPresent()) {
-                    Answer answer = answerOptional.get();
-                    answers.add(answer);
+                    if (answerOptional.isPresent()) {
+                        Answer answer = answerOptional.get();
+                        answers.add(answer);
+                    }
+                    else{
+                        return CafeUtils.getResponseEntity("Answers with provided ID do not exist", HttpStatus.BAD_REQUEST);
+                    }
+
+                    question.setAnswers(answers);
+                    questions.add(question);
                 }
-
-                question.setAnswers(answers);
-                questions.add(question);
+                else{
+                    return CafeUtils.getResponseEntity("Questions with provided ID do not exist", HttpStatus.BAD_REQUEST);
+                }
             }
+
+            submittedSurvey.setQuestions(questions);
+            submittedSurveyDao.save(submittedSurvey);
+            return CafeUtils.getResponseEntity("Successfully submitted a survey", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CafeUtils.getResponseEntity("Something went wrong!", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        submittedSurvey.setQuestions(questions);
-        submittedSurveyDao.save(submittedSurvey);
-        return CafeUtils.getResponseEntity("Successfully submitted a survey", HttpStatus.OK);
     }
 
     @Override
-    public SurveyWrapper getSubmittedSurvey(int id) {
-        SurveyWrapper sW = new SurveyWrapper();
-        SubmittedSurvey survey = submittedSurveyDao.findById(id).orElse(null);
-        sW.setName(survey.getName());
-        sW.setDescription(survey.getDescription());
-        sW.setQuestions(survey.getQuestions());
-        return sW;
+    public ResponseEntity<SurveyWrapper> getSubmittedSurvey(int id) {
+        try {
+            if (jwtFilter.isAdmin()) {
+                SurveyWrapper sW = new SurveyWrapper();
+                SubmittedSurvey survey = submittedSurveyDao.findById(id).orElse(null);
+                sW.setName(survey.getName());
+                sW.setDescription(survey.getDescription());
+                sW.setQuestions(survey.getQuestions());
+                return new ResponseEntity<SurveyWrapper>(sW, null, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<SurveyWrapper>(null, null, HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<SurveyWrapper>(null, null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

@@ -16,10 +16,10 @@ public interface SurveyService {
     ResponseEntity<String> createSurvey(Survey survey);
     ResponseEntity<String> createQuestion(Question question);
     ResponseEntity<List<Survey>> getSurveys();
-    List<SurveyDTO> getSurveysDTO();
-    SurveyWrapper getSurvey(int id);
+    ResponseEntity<List<SurveyDTO>> getSurveysDTO();
+    ResponseEntity<SurveyWrapper> getSurvey(int id);
     ResponseEntity<Question> addQuestion(int questionId, int surveyId);
     ResponseEntity<String> deleteSurvey(int id);
     ResponseEntity<String> submitSurvey(SubmittedSurveyReq survey);
-    SurveyWrapper getSubmittedSurvey(int id);
+    ResponseEntity<SurveyWrapper> getSubmittedSurvey(int id);
 }
