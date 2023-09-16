@@ -90,8 +90,7 @@ public class SurveyRestImpl implements SurveyRest {
     @Override
     public ResponseEntity<List<SurveyDTO>> getSurveysDTO() {
         try {
-            List<SurveyDTO> surveyDTO = surveyService.getSurveysDTO();
-            return new ResponseEntity<>(surveyDTO, HttpStatus.OK);
+            return surveyService.getSurveysDTO();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,8 +111,7 @@ public class SurveyRestImpl implements SurveyRest {
     @Override
     public ResponseEntity<SurveyWrapper> getSurvey(int id) {
         try {
-           SurveyWrapper sW = surveyService.getSurvey(id);
-        return new ResponseEntity<SurveyWrapper>(sW, HttpStatus.OK); 
+        return surveyService.getSurvey(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -133,8 +131,7 @@ public class SurveyRestImpl implements SurveyRest {
     @Override
     public ResponseEntity<SurveyWrapper> getSubmittedSurvey(int id) {
         try {
-        SurveyWrapper sW = surveyService.getSubmittedSurvey(id);
-        return new ResponseEntity<SurveyWrapper>(sW, HttpStatus.OK);    
+        return surveyService.getSubmittedSurvey(id);   
         } catch (Exception e) {
             e.printStackTrace();
         }
