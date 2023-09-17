@@ -56,6 +56,9 @@ public class Survey implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "is_deleted", columnDefinition = "boolean default false")
+    private boolean deleted;
+
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "survey_question", joinColumns = @JoinColumn(name = "survey_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "question_id", referencedColumnName = "id"))
     @JsonBackReference
