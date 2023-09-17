@@ -111,13 +111,30 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public ResponseEntity<String> deleteSurvey(int id) {
-        throw new UnsupportedOperationException("Unimplemented method 'deleteSurvey'");
+        try {
+            if (jwtFilter.isAdmin()) {
+                Optional<Survey> surveyOptional = surveyDao.findById(id);
+                if (surveyOptional.isPresent()) {
+                    Survey survey=surveyOptional.get();
+                    survey.setDeleted(true);
+                    surveyDao.save(survey);
+                    return CafeUtils.getResponseEntity("Successfully deleted survey with id: " + id, HttpStatus.OK);
+                } else {
+                    return CafeUtils.getResponseEntity("User with this id does not exist", HttpStatus.NOT_FOUND);
+                }
+            } else {
+                return CafeUtils.getResponseEntity("Unauthorized", HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CafeUtils.getResponseEntity("Something went wrong!", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public ResponseEntity<List<Survey>> getSurveys() {
         try {
-            List<Survey> surveys = surveyDao.findAll();
+            List<Survey> surveys = surveyDao.findByDeletedFalse();
             return new ResponseEntity<>(surveys, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -227,16 +244,16 @@ public class SurveyServiceImpl implements SurveyService {
                     if (answerOptional.isPresent()) {
                         Answer answer = answerOptional.get();
                         answers.add(answer);
-                    }
-                    else{
-                        return CafeUtils.getResponseEntity("Answers with provided ID do not exist", HttpStatus.BAD_REQUEST);
+                    } else {
+                        return CafeUtils.getResponseEntity("Answers with provided ID do not exist",
+                                HttpStatus.BAD_REQUEST);
                     }
 
                     question.setAnswers(answers);
                     questions.add(question);
-                }
-                else{
-                    return CafeUtils.getResponseEntity("Questions with provided ID do not exist", HttpStatus.BAD_REQUEST);
+                } else {
+                    return CafeUtils.getResponseEntity("Questions with provided ID do not exist",
+                            HttpStatus.BAD_REQUEST);
                 }
             }
 
